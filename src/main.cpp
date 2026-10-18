@@ -134,10 +134,36 @@ void setup(){
   WiFi.setSleep(false);
   if(cfg.ssid.isEmpty()||cfg.printerIP.isEmpty()||cfg.printerSerial.isEmpty())startPortal();
   else{
-    WiFi.mode(WIFI_STA);WiFi.begin(cfg.ssid.c_str(),cfg.wifiPass.c_str());
-    uint32_t begin=millis();while(WiFi.status()!=WL_CONNECTED&&millis()-begin<20000){delay(250);}
-    if(WiFi.status()!=WL_CONNECTED)startPortal();
-    else Serial.printf("Dashboard: http://%s\n",WiFi.localIP().toString().c_str());
+    
+Serial.printf("Saved SSID: %s\n", cfg.ssid.c_str());
+Serial.printf("Password length: %u\n",
+              (unsigned)cfg.wifiPass.length());
+
+WiFi.mode(WIFI_STA);
+WiFi.begin(cfg.ssid.c_str(), cfg.wifiPass.c_str());
+
+Serial.println("Connecting to Wi-Fi...");
+
+uint32_t start = millis();
+
+while (WiFi.status() != WL_CONNECTED &&
+       millis() - start < 20000) {
+  delay(1000);
+  Serial.printf("Wi-Fi status: %d\n",
+                (int)WiFi.status());
+}
+
+if (WiFi.status() == WL_CONNECTED) {
+  Serial.println("Wi-Fi connected!");
+  Serial.print("IP address: ");
+  Serial.println(WiFi.localIP());
+} else {
+  Serial.printf("Wi-Fi failed. Final status: %d\n",
+                (int)WiFi.status());
+  Serial.println("Returning to setup portal...");
+  startPortal();
+}
+
   }
   web.on("/",HTTP_GET,[](){if(portalMode)web.send(200,"text/html",configPage());else web.send_P(200,"text/html",DASHBOARD_HTML);});
   web.on("/setup",HTTP_GET,[](){web.send(200,"text/html",configPage());});
