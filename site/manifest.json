@@ -1,0 +1,13 @@
+{
+  "name": "Bambu P1S Monitor — XIAO ESP32-C3",
+  "version": "0.2.0-test",
+  "new_install_prompt_erase": true,
+  "builds": [
+    {
+      "chipFamily": "ESP32-C3",
+      "parts": [
+        {"path": "firmware-merged.bin", "offset": 0}
+      ]
+    }
+  ]
+}
