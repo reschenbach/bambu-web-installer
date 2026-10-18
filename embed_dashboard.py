@@ -1,19 +1,25 @@
 
 from pathlib import Path
+Import("env")
 
-# Locate the project directory
-project_dir = Path(__file__).resolve().parent
+# Get the project directory from PlatformIO
+project_dir = Path(env.subst("$PROJECT_DIR"))
 
-# Source HTML dashboard
+# Input dashboard HTML
 html_file = project_dir / "dashboard.html"
 
-# Output header
+# Output header directory
 include_dir = project_dir / "include"
 include_dir.mkdir(parents=True, exist_ok=True)
 
 header_file = include_dir / "dashboard_embedded.h"
 
-# Read dashboard HTML
+# Read the HTML file
+if not html_file.exists():
+    raise FileNotFoundError(
+        f"Dashboard HTML not found: {html_file}"
+    )
+
 html = html_file.read_bytes()
 
 # Convert HTML to a C++ byte array
@@ -24,7 +30,7 @@ hex_lines = [
     for i in range(0, len(html), 24)
 ]
 
-# Write generated header
+# Generate header
 header_file.write_text(
     "#pragma once\n"
     "#include <Arduino.h>\n"
@@ -35,5 +41,5 @@ header_file.write_text(
     encoding="utf-8"
 )
 
-print(f"Generated {header_file}")
+print(f"Generated: {header_file}")
 print(f"Dashboard size: {len(html)} bytes")
